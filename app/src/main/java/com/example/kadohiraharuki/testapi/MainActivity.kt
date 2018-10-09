@@ -1,7 +1,8 @@
 package com.example.kadohiraharuki.testapi
-
+import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
@@ -14,7 +15,9 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.list_item.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -24,6 +27,7 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
+import kotlin.math.log
 
 class MainActivity : AppCompatActivity() {
 
@@ -119,13 +123,12 @@ class MainActivity : AppCompatActivity() {
         listView.adapter = arrayAdapter
 
 
-
     }
 
 
-    inner class HitAPITask : AsyncTask<String, String, String>() {
+    inner class HitAPITask : AsyncTask<String, String, Array<Array<String?>>>() {
 
-        override fun doInBackground(vararg params: String): String {
+        override fun doInBackground(vararg params: String): Array<Array<String?>> {
             //ここでAPIを叩きます。バックグラウンドで処理する内容です。
             //HTTP固有の機能をサポートするURLConnection
             var connection: HttpURLConnection? = null
@@ -168,6 +171,8 @@ class MainActivity : AppCompatActivity() {
 
                 val parentJSONOArray = parentJsonObj.getJSONArray("items")
 
+                var arrayd = Array(2, { arrayOfNulls<String>(4) })
+
                 val firstJsonObj = parentJSONOArray.getJSONObject(0)
                 val loginname: ArrayList<String> = arrayListOf(firstJsonObj.getString("login"))
                 val avatar: ArrayList<String> = arrayListOf(firstJsonObj.getString("avatar_url"))
@@ -186,8 +191,14 @@ class MainActivity : AppCompatActivity() {
                 loginname.add(fourthJsonObj.getString("login"))
                 avatar.add(fourthJsonObj.getString("avatar_url"))
 
+                arrayd[0] = Array(loginname.size) { i -> loginname[i] }
+                arrayd[1] = Array(avatar.size) { i -> avatar[i] }
+
+                Log.d("Checkarr", arrayd[1][3])
+
+
                 //Stringでreturnしてあげましょう。
-                return "$loginname - $avatar"  //
+                return arrayd
 
                 //ここから下は、接続エラーとかJSONのエラーとかで失敗した時にエラーを処理する為のものです。
             } catch (e: MalformedURLException) {
@@ -208,23 +219,23 @@ class MainActivity : AppCompatActivity() {
             }
             //textView.text =("失敗")
             //失敗した時はnullやエラーコードなどを返しましょう。
-            return null.toString()
+            return null as Array<Array<String?>>
 
         }
 
 
         //返ってきたデータをビューに反映させる処理はonPostExecuteに書きます。これはメインスレッドです。
-        override fun onPostExecute(result: String?) {
+        override fun onPostExecute(result: Array<Array<String?>>) {
             super.onPostExecute(result)
             if (result == null) {
                 return
             }
-            val username: ArrayList<String> = arrayListOf(result[0].toString())
-            val userimg: ArrayList<String> = arrayListOf(result[1].toString())
+            Log.d("CHECKresu", result[1][3])
 
-            data class UsersData(val name: String, val userImgView: String)
 
-            val users = List(username.count()) { i -> UsersData(username[i], userimg[i]) }
+            data class UsersData(val name: String?, val userImgView: String?)
+
+            val users = List(result[0].size) { i -> UsersData(result[0][i], result[1][i]) }
             Log.d("CHECKuser", users.toString())
 
             data class ViewHolder(val nameTextView: TextView, val UserImgView: ImageView)
@@ -247,18 +258,23 @@ class MainActivity : AppCompatActivity() {
                         holder = view.tag as ViewHolder
                     }
 
-                    val users = getItem(position) as UsersData
-                    holder.nameTextView.text = users.name
-                    holder.UserImgView.setImageBitmap(BitmapFactory.decodeStream(users.userImgView as InputStream))
+                    val usersp = getItem(position) as UsersData
+                    holder.nameTextView.text = usersp.name
+                    Picasso.with(context).load(usersp.userImgView).into(holder.UserImgView)
 
 
                     return view
+
                 }
             }
-            /*val array2Adapter = UserAdapter( this, users)
+            val array2Adapter = UserAdapter(applicationContext, users)
             val listView2: ListView = findViewById(R.id.listView)
-            listView2.adapter = array2Adapter*/
+            listView2.adapter = array2Adapter
+
         }
+
     }
 }
+
+
 

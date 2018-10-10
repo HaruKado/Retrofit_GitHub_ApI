@@ -321,21 +321,21 @@ class MainActivity : AppCompatActivity() {
                 val RepoJsonobj = JSONArray(buffer.toString())
                 val firstRepo = RepoJsonobj.getJSONObject(0)
                 val Reponame: ArrayList<String> = arrayListOf(firstRepo.getString("name"))
-                val giturl: ArrayList<String> = arrayListOf(firstRepo.getString("git_url"))
+                val giturl: ArrayList<String> = arrayListOf(firstRepo.getString("svn_url"))
                 Log.d("Checkfirstrepo", Reponame.toString())
 
                 val SecondRepo = RepoJsonobj.getJSONObject(1)
                 Reponame.add(SecondRepo.getString("name"))
-                giturl.add(SecondRepo.getString("git_url"))
+                giturl.add(SecondRepo.getString("svn_url"))
                 Log.d("reponame2", Reponame[1])
 
                 val ThirdRepo = RepoJsonobj.getJSONObject(2)
                 Reponame.add(ThirdRepo.getString("name"))
-                giturl.add(ThirdRepo.getString("git_url"))
+                giturl.add(ThirdRepo.getString("svn_url"))
 
                 val ForthRepo = RepoJsonobj.getJSONObject(3)
                 Reponame.add(ForthRepo.getString("name"))
-                giturl.add(ForthRepo.getString("git_url"))
+                giturl.add(ForthRepo.getString("svn_url"))
 
                 arrayrepo[0] = Array(Reponame.size) { i -> Reponame[i] }
                 arrayrepo[1] = Array(giturl.size) { i -> giturl[i] }
@@ -371,36 +371,10 @@ class MainActivity : AppCompatActivity() {
             }
             Log.d("CHECKrepopo", result[0].toString())
 
-            /*data class ReposData(val repname: String?)
-
-            val repos = List(result.size) { i -> ReposData(result[i]) }
-
-            data class ViewHolder(val RepoTextView: TextView)
-
-            class ReposAdapter(context: Context, repos: List<ReposData>) : ArrayAdapter<ReposData>(context, 0, repos) {
-                private val layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-                override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
-                    var view = convertView
-                    var holder: ViewHolder
-                    if (view == null) {
-                        view = layoutInflater.inflate(R.layout.repos_item, parent, false)
-                        holder = ViewHolder(
-                                view.findViewById(R.id.RepoTextView)
-                        )
-                        view.tag = holder
-                    } else {
-                        holder = view.tag as ViewHolder
-                    }
-
-                    val reposp = getItem(position) as ReposData
-                    holder.RepoTextView.text = reposp.repname
-
-                    return view
-                }
-            }*/
 
             val intent = Intent(applicationContext, repolistview::class.java)
             intent.putExtra(EXTRA_MESSAGE, result[0])
+            intent.putExtra("Repourl",result[1])
             startActivity(intent)
 
         }

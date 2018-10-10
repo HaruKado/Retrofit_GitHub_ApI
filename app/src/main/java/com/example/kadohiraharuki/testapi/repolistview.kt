@@ -1,6 +1,7 @@
 package com.example.kadohiraharuki.testapi
 
 import android.content.Context
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.AlarmClock.EXTRA_MESSAGE
@@ -20,6 +21,8 @@ class repolistview : AppCompatActivity() {
 
         val intent = getIntent()
         val message = intent.extras.getStringArray(EXTRA_MESSAGE)
+        val repourl = intent.extras.getStringArray("Repourl")
+        Log.d("repooo", repourl[0].toString())
 
         data class ReposData(val repname: String?)
 
@@ -50,8 +53,16 @@ class repolistview : AppCompatActivity() {
                 return view
             }
         }
+
         val array3Adapter = ReposAdapter(applicationContext, repos)
         val listView3: ListView = findViewById(R.id.repoList)
         listView3.adapter = array3Adapter
+
+        listView3.setOnItemClickListener { parent, view, position, id ->
+            val repurl = repourl[position]
+            val intent = Intent(applicationContext, webview::class.java)
+            intent.putExtra("webrepurl", repurl)
+            startActivity(intent)
+        }
     }
 }

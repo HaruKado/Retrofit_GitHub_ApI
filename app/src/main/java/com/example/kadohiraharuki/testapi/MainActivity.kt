@@ -1,14 +1,10 @@
 package com.example.kadohiraharuki.testapi
-import android.app.Application
-import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v7.widget.SearchView
+import android.provider.AlarmClock.EXTRA_MESSAGE
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,17 +12,15 @@ import android.view.ViewGroup
 import android.widget.*
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.list_item.*
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.IOException
-import java.io.InputStream
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
-import kotlin.math.log
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,22 +34,11 @@ class MainActivity : AppCompatActivity() {
 
             //val s = search.toString()
             //Log.d("skodjf", s)
-            HitAPITask().execute("https://api.github.com/search/users?q="+search.text.trim())
+            HitAPITask().execute("https://api.github.com/search/users?q=" + search.text.trim())
 
             Log.d("checkhit", HitAPITask().toString())
             //"+s.trim()+sort:followers")
 
-
-
-
-
-        }
-        listView.setOnItemClickListener { parent, view, position, id ->
-            /*val url: String = "https://github.com"
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse(url)*/
-            val intent = Intent(this, webview::class.java)
-            startActivity(intent)
 
         }
 
@@ -181,30 +164,36 @@ class MainActivity : AppCompatActivity() {
 
                 val parentJSONOArray = parentJsonObj.getJSONArray("items")
 
-                var arrayd = Array(2, { arrayOfNulls<String>(4) })
+                var arrayd = Array(3, { arrayOfNulls<String>(4) })
 
                 val firstJsonObj = parentJSONOArray.getJSONObject(0)
                 val loginname: ArrayList<String> = arrayListOf(firstJsonObj.getString("login"))
                 val avatar: ArrayList<String> = arrayListOf(firstJsonObj.getString("avatar_url"))
+                val rep: ArrayList<String> = arrayListOf(firstJsonObj.getString("repos_url"))
                 Log.d("CHECKlo1", loginname.toString())
                 Log.d("CHECKav1", avatar.toString())
+                Log.d("CHECKrep1", rep.toString())
 
                 val secondJsonObj = parentJSONOArray.getJSONObject(1)
                 loginname.add(secondJsonObj.getString("login"))
                 avatar.add(secondJsonObj.getString("avatar_url"))
+                rep.add(secondJsonObj.getString("repos_url"))
 
                 val thirdJsonObj = parentJSONOArray.getJSONObject(2)
                 loginname.add(thirdJsonObj.getString("login"))
                 avatar.add(thirdJsonObj.getString("avatar_url"))
+                rep.add(thirdJsonObj.getString("repos_url"))
 
                 val fourthJsonObj = parentJSONOArray.getJSONObject(3)
                 loginname.add(fourthJsonObj.getString("login"))
                 avatar.add(fourthJsonObj.getString("avatar_url"))
+                rep.add(fourthJsonObj.getString("repos_url"))
 
                 arrayd[0] = Array(loginname.size) { i -> loginname[i] }
                 arrayd[1] = Array(avatar.size) { i -> avatar[i] }
+                arrayd[2] = Array(rep.size) { i -> rep[i] }
 
-                Log.d("Checkarr", arrayd[1][3])
+                Log.d("Checkarr", arrayd[2][3])
 
 
                 //Stringでreturnしてあげましょう。
@@ -240,7 +229,7 @@ class MainActivity : AppCompatActivity() {
             if (result == null) {
                 return
             }
-            Log.d("CHECKresu", result[1][3])
+            Log.d("CHECKresu", result[2][1])
 
 
             data class UsersData(val name: String?, val userImgView: String?)
@@ -277,14 +266,150 @@ class MainActivity : AppCompatActivity() {
 
                 }
             }
+
             val array2Adapter = UserAdapter(applicationContext, users)
             val listView2: ListView = findViewById(R.id.listView)
             listView2.adapter = array2Adapter
 
+
+            listView.setOnItemClickListener { parent, view, position, id ->
+                val rep = result[2][position]
+                Log.d("reprlt", rep)
+                HitRep().execute(rep)
+
+                //val intent = Intent(applicationContext, webview::class.java)
+                //startActivity(intent)
+
+            }
+
+        }
+    }
+
+    inner class HitRep : AsyncTask<String, String, Array<Array<String?>>?>() {
+        override fun doInBackground(vararg params: String): Array<Array<String?>>? {
+            var connection: HttpURLConnection? = null
+            //文字、配列、行をバッファリングすることによって、文字型入力ストリームからテキストを効率良く読み込む
+            var reader: BufferedReader? = null
+            //Stringクラス同様に宣言した変数に、文字列を格納するために使用
+            val buffer: StringBuffer
+            try {
+                //param[0]にはAPIのURI(String)を入れます(後ほど)。
+                //AsynkTask<...>の一つめがStringな理由はURIをStringで指定するからです。
+                val url = URL(params[0])
+                connection = url.openConnection() as HttpURLConnection
+                connection.connect()
+                //ここで指定したAPIを叩いてみてます。
+
+
+                //ここから叩いたAPIから帰ってきたデータを使えるよう処理していきます。
+
+                //とりあえず取得した文字をbufferに。
+                val stream = connection.inputStream
+                reader = BufferedReader(InputStreamReader(stream))
+                buffer = StringBuffer()
+                var line: String?
+                while (true) {
+                    line = reader.readLine()
+                    if (line == null) {
+                        break
+                    }
+                    buffer.append(line)
+                }
+                Log.d("CHECKREPO", buffer.toString())
+
+                var arrayrepo = Array(2, { arrayOfNulls<String>(4) })
+                val RepoJsonobj = JSONArray(buffer.toString())
+                val firstRepo = RepoJsonobj.getJSONObject(0)
+                val Reponame: ArrayList<String> = arrayListOf(firstRepo.getString("name"))
+                val giturl: ArrayList<String> = arrayListOf(firstRepo.getString("git_url"))
+                Log.d("Checkfirstrepo", Reponame.toString())
+
+                val SecondRepo = RepoJsonobj.getJSONObject(1)
+                Reponame.add(SecondRepo.getString("name"))
+                giturl.add(SecondRepo.getString("git_url"))
+                Log.d("reponame2", Reponame[1])
+
+                val ThirdRepo = RepoJsonobj.getJSONObject(2)
+                Reponame.add(ThirdRepo.getString("name"))
+                giturl.add(ThirdRepo.getString("git_url"))
+
+                val ForthRepo = RepoJsonobj.getJSONObject(3)
+                Reponame.add(ForthRepo.getString("name"))
+                giturl.add(ForthRepo.getString("git_url"))
+
+                arrayrepo[0] = Array(Reponame.size) { i -> Reponame[i] }
+                arrayrepo[1] = Array(giturl.size) { i -> giturl[i] }
+
+                return arrayrepo
+
+            } catch (e: MalformedURLException) {
+                e.printStackTrace()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+            //finallyで接続を切断してあげましょう。
+            finally {
+                connection?.disconnect()
+                try {
+                    reader?.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+            //textView.text =("失敗")
+            //失敗した時はnullやエラーコードなどを返しましょう。
+            return null
+
         }
 
+        override fun onPostExecute(result: Array<Array<String?>>?) {
+            super.onPostExecute(result)
+            if (result == null) {
+                return
+            }
+            Log.d("CHECKrepopo", result[0].toString())
+
+            /*data class ReposData(val repname: String?)
+
+            val repos = List(result.size) { i -> ReposData(result[i]) }
+
+            data class ViewHolder(val RepoTextView: TextView)
+
+            class ReposAdapter(context: Context, repos: List<ReposData>) : ArrayAdapter<ReposData>(context, 0, repos) {
+                private val layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+                override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
+                    var view = convertView
+                    var holder: ViewHolder
+                    if (view == null) {
+                        view = layoutInflater.inflate(R.layout.repos_item, parent, false)
+                        holder = ViewHolder(
+                                view.findViewById(R.id.RepoTextView)
+                        )
+                        view.tag = holder
+                    } else {
+                        holder = view.tag as ViewHolder
+                    }
+
+                    val reposp = getItem(position) as ReposData
+                    holder.RepoTextView.text = reposp.repname
+
+                    return view
+                }
+            }*/
+
+            val intent = Intent(applicationContext, repolistview::class.java)
+            intent.putExtra(EXTRA_MESSAGE, result[0])
+            startActivity(intent)
+
+        }
     }
+
+
 }
+
+
 
 
 

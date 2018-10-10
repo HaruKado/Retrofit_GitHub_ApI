@@ -1,5 +1,6 @@
 package com.example.kadohiraharuki.testapi
 import android.app.Application
+import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -7,14 +8,12 @@ import android.graphics.BitmapFactory
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.widget.SearchView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.ImageView
-import android.widget.ListView
-import android.widget.TextView
+import android.widget.*
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.list_item.*
@@ -36,9 +35,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         btn.setOnClickListener {
             //ボタンがクリックされたらAPIを叩く。
-            val s = search.toString()
-            HitAPITask().execute("https://api.github.com/search/users?q=Suzuki")
+
+            //val editText = findViewById<EditText>(R.id.search) as EditText
+
+            //val s = search.toString()
+            //Log.d("skodjf", s)
+            HitAPITask().execute("https://api.github.com/search/users?q="+search.text.trim())
+
+            Log.d("checkhit", HitAPITask().toString())
             //"+s.trim()+sort:followers")
+
+
+
 
 
         }
@@ -126,9 +134,9 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    inner class HitAPITask : AsyncTask<String, String, Array<Array<String?>>>() {
+    inner class HitAPITask : AsyncTask<String, String, Array<Array<String?>>?>() {
 
-        override fun doInBackground(vararg params: String): Array<Array<String?>> {
+        override fun doInBackground(vararg params: String): Array<Array<String?>>? {
             //ここでAPIを叩きます。バックグラウンドで処理する内容です。
             //HTTP固有の機能をサポートするURLConnection
             var connection: HttpURLConnection? = null
@@ -136,6 +144,8 @@ class MainActivity : AppCompatActivity() {
             var reader: BufferedReader? = null
             //Stringクラス同様に宣言した変数に、文字列を格納するために使用
             val buffer: StringBuffer
+
+            Log.d("para", params[0].toString())
 
             try {
                 //param[0]にはAPIのURI(String)を入れます(後ほど)。
@@ -219,13 +229,13 @@ class MainActivity : AppCompatActivity() {
             }
             //textView.text =("失敗")
             //失敗した時はnullやエラーコードなどを返しましょう。
-            return null as Array<Array<String?>>
+            return null
 
         }
 
 
         //返ってきたデータをビューに反映させる処理はonPostExecuteに書きます。これはメインスレッドです。
-        override fun onPostExecute(result: Array<Array<String?>>) {
+        override fun onPostExecute(result: Array<Array<String?>>?) {
             super.onPostExecute(result)
             if (result == null) {
                 return

@@ -1,6 +1,7 @@
 package com.example.kadohiraharuki.testapi
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
@@ -11,14 +12,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.beust.klaxon.JsonArray
-import com.beust.klaxon.JsonObject
-import com.squareup.moshi.Json
-import com.squareup.moshi.KotlinJsonAdapterFactory
-import com.squareup.moshi.Moshi
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
-import okio.BufferedSource
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -87,10 +82,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d("CHECK", buffer.toString())
 
 
-               val jsonText = buffer.toString()
-
-
-                val parentJsonObj = JSONObject(jsonText)
+                val parentJsonObj = JSONObject(buffer.toString())
                 Log.d("CHECK2", parentJsonObj.toString())
                 val parentJSONOArray = parentJsonObj.getJSONArray("items")
 
@@ -158,27 +150,23 @@ class MainActivity : AppCompatActivity() {
             }
             Log.d("CHECKresu", result[2][1])
 
-            val location = listOf(
-                    "Hokkaido"
-            )
-            val repository = listOf(
-                    "20"
-            )
-            val follow = listOf(
-                    "32"
-            )
-            val follower = listOf(
-                    "18"
-            )
+            val location = listOf("Hokkaido")
+            val repository = listOf("20")
+            val follow = listOf("32")
+            val follower = listOf("18")
+            val placepic =  listOf(R.drawable.place)
+            val repopic = listOf(R.drawable.repository)
+            val followpic = listOf(R.drawable.follow)
+            val followerpic = listOf(R.drawable.follower)
 
 
 
-            data class UsersData(val name: String?, val userImgView: String?, val loc: String, val repository: String, val follow: String, val follower: String)
+            data class UsersData(val name: String?, val userImgView: String?, val loc: String, val repository: String, val follow: String, val follower: String, val placepic: Int, val repopic:Int, val follwpic:Int, val follwerpic:Int)
 
-            val users = List(result[0].size) { i -> UsersData(result[0][i], result[1][i], location[0], repository[0], follow[0], follower[0]) }
+            val users = List(result[0].size) { i -> UsersData(result[0][i], result[1][i], location[0], repository[0], follow[0], follower[0], placepic[0], repopic[0], followpic[0], followerpic[0]) }
             Log.d("CHECKuser", users.toString())
 
-            data class ViewHolder(val nameTextView: TextView, val UserImgView: ImageView, val locTextView: TextView, val repositoryTextView: TextView, val followTextView: TextView, val follwerTextView: TextView)
+            data class ViewHolder(val nameTextView: TextView, val UserImgView: ImageView, val locTextView: TextView, val repositoryTextView: TextView, val followTextView: TextView, val follwerTextView: TextView, val placepicView:ImageView, val repopicView:ImageView, val followpicView:ImageView, val followerpicView:ImageView)
 
             class UserAdapter(context: Context, users: List<UsersData>) : ArrayAdapter<UsersData>(context, 0, users) {
                 private val layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -195,7 +183,11 @@ class MainActivity : AppCompatActivity() {
                                 view.findViewById(R.id.locTextView),
                                 view.findViewById(R.id.repositoryTextView),
                                 view.findViewById(R.id.followTextView),
-                                view.findViewById(R.id.followerTextView)
+                                view.findViewById(R.id.followerTextView),
+                                view.findViewById(R.id.placepicView),
+                                view.findViewById(R.id.repopicView),
+                                view.findViewById(R.id.followpicView),
+                                view.findViewById(R.id.followerpicView)
                         )
                         view.tag = holder
                     } else {
@@ -209,7 +201,10 @@ class MainActivity : AppCompatActivity() {
                     holder.repositoryTextView.text = usersp.repository
                     holder.followTextView.text = usersp.follow
                     holder.follwerTextView.text = usersp.follower
-
+                    holder.placepicView.setImageBitmap(BitmapFactory.decodeResource(context.resources, placepic[0]))
+                    holder.repopicView.setImageBitmap(BitmapFactory.decodeResource(context.resources, repopic[0]))
+                    holder.followpicView.setImageBitmap(BitmapFactory.decodeResource(context.resources, followpic[0]))
+                    holder.followerpicView.setImageBitmap(BitmapFactory.decodeResource(context.resources, followerpic[0]))
 
                     return view
 

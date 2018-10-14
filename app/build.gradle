@@ -23,6 +23,13 @@ android {
 }
 
 dependencies {
+    implementation 'com.beust:klaxon:3.0.1'
+    //
+    implementation "com.squareup.retrofit:retrofit:2.0.0-beta2"
+    implementation "com.squareup.retrofit:converter-moshi:2.0.0-beta2"
+    //
+    implementation 'com.squareup.moshi:moshi:1.5.0'
+    implementation 'com.squareup.moshi:moshi-kotlin:1.5.0'
     //picasoライブラリの設定
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation fileTree(dir: 'libs', include: ['*.jar'])

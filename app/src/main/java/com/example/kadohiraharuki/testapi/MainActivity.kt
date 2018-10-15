@@ -21,7 +21,6 @@ import java.io.*
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
-import java.util.regex.Pattern
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,17 +28,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         btn.setOnClickListener {
-            //ボタンがクリックされたらAPIを叩く。
 
-            //val editText = findViewById<EditText>(R.id.search) as EditText
-
-            //val s = search.toString()
-            //Log.d("skodjf", s)
             HitAPITask().execute("https://api.github.com/search/users?q=" + search.text.trim())
-
             Log.d("checkhit", HitAPITask().toString())
-            //"+s.trim()+sort:followers")
-
         }
     }
 
@@ -54,7 +45,7 @@ class MainActivity : AppCompatActivity() {
             //Stringクラス同様に宣言した変数に、文字列を格納するために使用
             val buffer: StringBuffer
 
-            Log.d("para", params[0].toString())
+            Log.d("para", params[0])
 
             try {
                 //param[0]にはAPIのURI(String)を入れます(後ほど)。
@@ -63,10 +54,7 @@ class MainActivity : AppCompatActivity() {
                 connection = url.openConnection() as HttpURLConnection
                 connection.connect()
                 //ここで指定したAPIを叩いてみてます。
-
-
                 //ここから叩いたAPIから帰ってきたデータを使えるよう処理していきます。
-
                 //とりあえず取得した文字をbufferに。
                 val stream = connection.inputStream
                 reader = BufferedReader(InputStreamReader(stream))
@@ -81,30 +69,27 @@ class MainActivity : AppCompatActivity() {
                 }
                 Log.d("CHECK", buffer.toString())
 
-
-                val parentJsonObj = JSONObject(buffer.toString())
-                Log.d("CHECK2", parentJsonObj.toString())
-                val parentJSONOArray = parentJsonObj.getJSONArray("items")
+                val apiJsonObj = JSONObject(buffer.toString())
+                Log.d("CHECK2", apiJsonObj.toString())
+                val apiJSONOArray = apiJsonObj.getJSONArray("items")
 
                 val namearr = arrayListOf<String>()
                 val avatararr = arrayListOf<String>()
                 val repoarr = arrayListOf<String>()
-                for(i in 0..(parentJSONOArray.length() - 1)){
+                for(i in 0..(apiJSONOArray.length() - 1)){
 
-                    val useritems = parentJSONOArray.getJSONObject(i)
+                    val useritems = apiJSONOArray.getJSONObject(i)
                     val name = useritems.getString("login")
                     val avatar = useritems.getString("avatar_url")
                     val repo= useritems.getString("repos_url")
                     namearr.add(name)
                     avatararr.add(avatar)
                     repoarr.add(repo)
-
-
                 }
 
-                Log.d("nameconf", namearr[15])
-                Log.d("avatarconf", avatararr[13])
-                Log.d("repoconf", repoarr[11])
+                //Log.d("nameconf", namearr[15])
+                //Log.d("avatarconf", avatararr[13])
+                //Log.d("repoconf", repoarr[11])
 
                 var arrayd = Array(3, { arrayOfNulls<String>(namearr.size) })
 
@@ -258,21 +243,41 @@ class MainActivity : AppCompatActivity() {
                 }
                 Log.d("CHECKREPO", buffer.toString())
 
-                var arrayrepo = Array(2, { arrayOfNulls<String>(4) })
+                var arrayrepo = Array(6, { arrayOfNulls<String>(4) })
 
                 val RepoJsonarr = JSONArray(buffer.toString())
                 val reponamearr = arrayListOf<String>()
                 val repourlarr = arrayListOf<String>()
+                val stararr = arrayListOf<String>()
+                val forkarr = arrayListOf<String>()
+                val langarr = arrayListOf<String>()
+                val RepoJobj = JSONArray(buffer.toString()).getJSONObject(0)
+                val ownerj = RepoJobj.getJSONObject("owner")
+                Log.d("hhhhh", ownerj.toString())
+                val owner = ownerj.getString("login")
+                Log.d("kkkkk", owner)
+
+
                 for(i in 0..(RepoJsonarr.length() - 1)){
 
                     val useritems = RepoJsonarr.getJSONObject(i)
                     val reponame = useritems.getString("name")
                     val repourl= useritems.getString("svn_url")
+                    val star = useritems.getString("stargazers_count")
+                    val fork = useritems.getString("forks")
+                    val lang = useritems.getString("language")
                     reponamearr.add(reponame)
                     repourlarr.add(repourl)
+                    stararr.add(star)
+                    forkarr.add(fork)
+                    langarr.add(lang)
                 }
                 arrayrepo[0] = Array(reponamearr.size) { i -> reponamearr[i] }
                 arrayrepo[1] = Array(repourlarr.size) { i -> repourlarr[i] }
+                arrayrepo[2] = Array(stararr.size) { i -> stararr[i] }
+                arrayrepo[3] = Array(forkarr.size) { i -> forkarr[i] }
+                arrayrepo[4] = Array(langarr.size) { i -> langarr[i] }
+                arrayrepo[5][0] = owner
 
                 return arrayrepo
 
@@ -301,17 +306,20 @@ class MainActivity : AppCompatActivity() {
             if (result == null) {
                 return
             }
-            Log.d("CHECKrepopo", result[0].toString())
+            Log.d("CHECKrepopo", result[5][0].toString())
 
 
             val intent = Intent(applicationContext, repolistview::class.java)
-            intent.putExtra(EXTRA_MESSAGE, result[0])
-            intent.putExtra("Repourl",result[1])
+            intent.putExtra("RepoName", result[0])
+            intent.putExtra("RepoUrl",result[1])
+            intent.putExtra("RepoStar",result[2])
+            intent.putExtra("RepoFork",result[3])
+            intent.putExtra("RepoLang",result[4])
+            intent.putExtra("RepoOwner",result[5][0])
             startActivity(intent)
 
         }
     }
-
 
 }
 

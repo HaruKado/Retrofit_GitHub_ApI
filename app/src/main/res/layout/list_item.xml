@@ -8,10 +8,8 @@
     <ImageView
         android:id="@+id/userImgView"
         android:layout_width="83dp"
-        android:layout_height="122dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_height="119dp"
+        app:layout_constraintBottom_toBottomOf="@+id/repopicView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/giraffe" />
@@ -20,52 +18,42 @@
         android:id="@+id/nameTextView"
         android:layout_width="261dp"
         android:layout_height="42dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
         android:textSize="26sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/placepicView"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/locTextView"
         android:layout_width="138dp"
         android:layout_height="32dp"
-        android:layout_marginEnd="88dp"
-        android:layout_marginRight="88dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="112dp"
+        android:layout_marginRight="112dp"
+        android:layout_marginBottom="8dp"
         android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/repopicView"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/placepicView"
         app:layout_constraintTop_toBottomOf="@+id/nameTextView" />
 
     <ImageView
         android:id="@+id/placepicView"
-        android:layout_width="37dp"
-        android:layout_height="35dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_width="30dp"
+        android:layout_height="24dp"
         android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/locTextView"
-        app:layout_constraintEnd_toStartOf="@+id/locTextView"
-        app:layout_constraintHorizontal_bias="0.333"
+        android:layout_marginLeft="8dp"
         app:layout_constraintStart_toEndOf="@+id/userImgView"
         app:layout_constraintTop_toBottomOf="@+id/nameTextView"
-        app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/place" />
 
     <ImageView
         android:id="@+id/repopicView"
         android:layout_width="34dp"
         android:layout_height="25dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/userImgView"
         app:layout_constraintStart_toEndOf="@+id/userImgView"
         app:layout_constraintTop_toBottomOf="@+id/placepicView"
         app:srcCompat="@drawable/repository" />
@@ -74,26 +62,33 @@
         android:id="@+id/followpicView"
         android:layout_width="41dp"
         android:layout_height="38dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginLeft="12dp"
         app:layout_constraintBottom_toBottomOf="@+id/repositoryTextView"
         app:layout_constraintStart_toEndOf="@+id/repositoryTextView"
         app:layout_constraintTop_toTopOf="@+id/repositoryTextView"
+        app:layout_constraintVertical_bias="0.571"
         app:srcCompat="@drawable/follow" />
 
     <TextView
         android:id="@+id/repositoryTextView"
         android:layout_width="30dp"
         android:layout_height="31dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
         android:text="35"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="@+id/repopicView"
-        app:layout_constraintStart_toEndOf="@+id/repopicView" />
+        app:layout_constraintStart_toEndOf="@+id/repopicView"
+        app:layout_constraintTop_toTopOf="@+id/repopicView" />
 
     <TextView
         android:id="@+id/followTextView"
         android:layout_width="23dp"
         android:layout_height="28dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="4dp"
         android:text="35"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="@+id/followpicView"
@@ -101,26 +96,28 @@
 
     <ImageView
         android:id="@+id/followerpicView"
-        android:layout_width="60dp"
-        android:layout_height="52dp"
+        android:layout_width="53dp"
+        android:layout_height="54dp"
         android:layout_marginStart="12dp"
         android:layout_marginLeft="12dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="@+id/followTextView"
         app:layout_constraintStart_toEndOf="@+id/followTextView"
         app:layout_constraintTop_toTopOf="@+id/followTextView"
-        app:layout_constraintVertical_bias="0.625"
+        app:layout_constraintVertical_bias="0.73"
         app:srcCompat="@drawable/follower" />
 
     <TextView
         android:id="@+id/followerTextView"
         android:layout_width="33dp"
         android:layout_height="30dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
         android:text="35"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="@+id/followerpicView"
         app:layout_constraintStart_toEndOf="@+id/followerpicView"
-        app:layout_constraintTop_toTopOf="@+id/followerpicView" />
+        app:layout_constraintTop_toTopOf="@+id/followerpicView"
+        app:layout_constraintVertical_bias="0.541" />
 
 </android.support.constraint.ConstraintLayout>

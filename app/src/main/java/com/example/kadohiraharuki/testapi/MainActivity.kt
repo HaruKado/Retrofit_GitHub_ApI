@@ -1,18 +1,9 @@
 package com.example.kadohiraharuki.testapi
-import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.AlarmClock.EXTRA_MESSAGE
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.*
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONArray
 import org.json.JSONException
@@ -27,17 +18,18 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        btn.setOnClickListener {
+        search.setOnClickListener {
 
+            //１回目の非同期処理を実行
             HitAPITask().execute("https://api.github.com/search/users?q=" + search.text.trim())
-            Log.d("checkhit", HitAPITask().toString())
+            Log.d("CHECKHitAPITask", HitAPITask().toString())
         }
     }
 
-    inner class HitAPITask : AsyncTask<String, String, Array<Array<String?>>?>() {
+    inner class HitAPITask : AsyncTask<String, String, Array<ArrayList<String?>>?>() {
 
-        override fun doInBackground(vararg params: String): Array<Array<String?>>? {
-            //ここでAPIを叩きます。バックグラウンドで処理する内容です。
+        override fun doInBackground(vararg params: String): Array<ArrayList<String?>>? {
+
             //HTTP固有の機能をサポートするURLConnection
             var connection: HttpURLConnection? = null
             //文字、配列、行をバッファリングすることによって、文字型入力ストリームからテキストを効率良く読み込む
@@ -45,19 +37,14 @@ class MainActivity : AppCompatActivity() {
             //Stringクラス同様に宣言した変数に、文字列を格納するために使用
             val buffer: StringBuffer
 
-            Log.d("para", params[0])
 
             try {
-                //param[0]にはAPIのURI(String)を入れます(後ほど)。
-                //AsynkTask<...>の一つめがStringな理由はURIをStringで指定するからです。
-                val url = URL(params[0])
-                connection = url.openConnection() as HttpURLConnection
-                connection.connect()
-                //ここで指定したAPIを叩いてみてます。
-                //ここから叩いたAPIから帰ってきたデータを使えるよう処理していきます。
-                //とりあえず取得した文字をbufferに。
-                val stream = connection.inputStream
-                reader = BufferedReader(InputStreamReader(stream))
+                val url = URL(params[0])    //指定された文字列のURLオブジェクトを生成
+                connection = url.openConnection() as HttpURLConnection  //HTTP経由でWebページにアクセスするためのオブジェクト生成
+                connection.connect()    //URLConnectionクラスのconnectメソッドを使いurlに接続
+
+                //取得した情報をReaderクラスのBufferedReaderオブジェクトにキャストし、データを文字単位で読み込めるようにする
+                reader = BufferedReader(InputStreamReader(connection.inputStream))
                 buffer = StringBuffer()
                 var line: String?
                 while (true) {
@@ -67,43 +54,25 @@ class MainActivity : AppCompatActivity() {
                     }
                     buffer.append(line)
                 }
-                Log.d("CHECK", buffer.toString())
+                Log.d("CHECK_buffer", buffer.toString())
 
-                val apiJsonObj = JSONObject(buffer.toString())
-                Log.d("CHECK2", apiJsonObj.toString())
-                val apiJSONOArray = apiJsonObj.getJSONArray("items")
+                val apiJSONArray = JSONObject(buffer.toString()).getJSONArray("items")
+                Log.d("CHECK_apiJSONArray", apiJSONArray.toString())
 
-                val namearr = arrayListOf<String>()
-                val avatararr = arrayListOf<String>()
-                val repoarr = arrayListOf<String>()
-                for(i in 0..(apiJSONOArray.length() - 1)){
 
-                    val useritems = apiJSONOArray.getJSONObject(i)
-                    val name = useritems.getString("login")
-                    val avatar = useritems.getString("avatar_url")
-                    val repo= useritems.getString("repos_url")
-                    namearr.add(name)
-                    avatararr.add(avatar)
-                    repoarr.add(repo)
+                var users_Info = Array(3, { arrayListOf<String?>() })
+
+                for (user_number in 0..(apiJSONArray.length() - 1)) {
+
+                    val useritems = apiJSONArray.getJSONObject(user_number)
+                    users_Info[0].add(useritems.getString("login")) //各ユーザーネームを取得して保存する
+                    users_Info[1].add(useritems.getString("avatar_url")) //各ユーザーのプロフィール画像のurlを取得して保存する
+                    users_Info[2].add(useritems.getString("repos_url")) //各ユーザーのリポジトリ情報のurlを取得して保存する
                 }
 
-                //Log.d("nameconf", namearr[15])
-                //Log.d("avatarconf", avatararr[13])
-                //Log.d("repoconf", repoarr[11])
+                return users_Info
 
-                var arrayd = Array(3, { arrayOfNulls<String>(namearr.size) })
-
-                arrayd[0] = Array(namearr.size) { i -> namearr[i] }
-                arrayd[1] = Array(avatararr.size) { i -> avatararr[i] }
-                arrayd[2] = Array(repoarr.size) { i -> repoarr[i] }
-
-                Log.d("sizzz" , namearr.size.toString())
-                Log.d("arrayd", arrayd[2][1].toString())
-
-                return arrayd
-
-
-                //ここから下は、接続エラーとかJSONのエラーとかで失敗した時にエラーを処理する為のものです。
+                //ここから下は、接続エラーとかJSONのエラーとかで失敗した時にエラーを処理する。
             } catch (e: MalformedURLException) {
                 e.printStackTrace()
             } catch (e: IOException) {
@@ -111,7 +80,7 @@ class MainActivity : AppCompatActivity() {
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
-            //finallyで接続を切断してあげましょう。
+            //finallyで接続を切断する。
             finally {
                 connection?.disconnect()
                 try {
@@ -120,116 +89,62 @@ class MainActivity : AppCompatActivity() {
                     e.printStackTrace()
                 }
             }
-            //textView.text =("失敗")
-            //失敗した時はnullやエラーコードなどを返しましょう。
             return null
-
         }
 
 
-        //返ってきたデータをビューに反映させる処理はonPostExecuteに書きます。これはメインスレッドです。
-        override fun onPostExecute(result: Array<Array<String?>>?) {
-            super.onPostExecute(result)
-            if (result == null) {
+        //返ってきたデータをビューに反映させる。
+        override fun onPostExecute(users_Info: Array<ArrayList<String?>>?) {
+            super.onPostExecute(users_Info)
+            if (users_Info == null) {
                 return
             }
-            Log.d("CHECKresu", result[2][1])
 
+
+            //位置情報、リポジトリ数、フォロー数、フォロワー数のリストを用意(これらの要素はapiで情報を取得できなかったので、全て同じ値にする)　
             val location = listOf("Hokkaido")
             val repository = listOf("20")
             val follow = listOf("32")
             val follower = listOf("18")
-            val placepic =  listOf(R.drawable.place)
-            val repopic = listOf(R.drawable.repository)
-            val followpic = listOf(R.drawable.follow)
-            val followerpic = listOf(R.drawable.follower)
 
 
-
-            data class UsersData(val name: String?, val userImgView: String?, val loc: String, val repository: String, val follow: String, val follower: String, val placepic: Int, val repopic:Int, val follwpic:Int, val follwerpic:Int)
-
-            val users = List(result[0].size) { i -> UsersData(result[0][i], result[1][i], location[0], repository[0], follow[0], follower[0], placepic[0], repopic[0], followpic[0], followerpic[0]) }
-            Log.d("CHECKuser", users.toString())
-
-            data class ViewHolder(val nameTextView: TextView, val UserImgView: ImageView, val locTextView: TextView, val repositoryTextView: TextView, val followTextView: TextView, val follwerTextView: TextView, val placepicView:ImageView, val repopicView:ImageView, val followpicView:ImageView, val followerpicView:ImageView)
-
-            class UserAdapter(context: Context, users: List<UsersData>) : ArrayAdapter<UsersData>(context, 0, users) {
-                private val layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-
-                override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
-                    var view = convertView
-                    var holder: ViewHolder
-
-                    if (view == null) {
-                        view = layoutInflater.inflate(R.layout.list_item, parent, false)
-                        holder = ViewHolder(
-                                view.findViewById(R.id.nameTextView),
-                                view.findViewById(R.id.userImgView),
-                                view.findViewById(R.id.locTextView),
-                                view.findViewById(R.id.repositoryTextView),
-                                view.findViewById(R.id.followTextView),
-                                view.findViewById(R.id.followerTextView),
-                                view.findViewById(R.id.placepicView),
-                                view.findViewById(R.id.repopicView),
-                                view.findViewById(R.id.followpicView),
-                                view.findViewById(R.id.followerpicView)
-                        )
-                        view.tag = holder
-                    } else {
-                        holder = view.tag as ViewHolder
-                    }
-
-                    val usersp = getItem(position) as UsersData
-                    holder.nameTextView.text = usersp.name
-                    Picasso.with(context).load(usersp.userImgView).into(holder.UserImgView)
-                    holder.locTextView.text = usersp.loc
-                    holder.repositoryTextView.text = usersp.repository
-                    holder.followTextView.text = usersp.follow
-                    holder.follwerTextView.text = usersp.follower
-                    holder.placepicView.setImageBitmap(BitmapFactory.decodeResource(context.resources, placepic[0]))
-                    holder.repopicView.setImageBitmap(BitmapFactory.decodeResource(context.resources, repopic[0]))
-                    holder.followpicView.setImageBitmap(BitmapFactory.decodeResource(context.resources, followpic[0]))
-                    holder.followerpicView.setImageBitmap(BitmapFactory.decodeResource(context.resources, followerpic[0]))
-
-                    return view
-
-                }
+            val users = List(users_Info[0].size) { i -> UsersData(
+                    users_Info[0][i],   //ユーザーの名前情報が入っている
+                    users_Info[1][i],   //ユザーのプロフィール画像のurlが入っている
+                    location[0],
+                    repository[0],
+                    follow[0],
+                    follower[0]
+                   )
             }
 
-            val array2Adapter = UserAdapter(applicationContext, users)
-            val listView: ListView = findViewById(R.id.listView)
-            listView.adapter = array2Adapter
+            Log.d("CHECKusers", users.toString())
 
+            //リストビューにユーザー情報を反映させる
+            listView.adapter = UsersInfo_Adapter(this@MainActivity, users)
 
+            //ユーザーのボタンをタップ時に、そのユーザーのリポジトリのurlをSearch_Reposiotoryクラスで検索するようにする
             listView.setOnItemClickListener { parent, view, position, id ->
-                val rep = result[2][position]
-                Log.d("reprlt", rep)
-                HitRep().execute(rep)
-
+                val repository_url = users_Info[2][position]
+                Log.d("reprlt", repository_url)
+                Search_Reposiotory().execute(repository_url)
             }
-
         }
     }
 
-    inner class HitRep : AsyncTask<String, String, Array<Array<String?>>?>() {
-        override fun doInBackground(vararg params: String): Array<Array<String?>>? {
+    //２回目の非同期処理、ここでは個人のリポジトリの情報があるurlに接続し、言語やスター数などの情報を取得する
+    inner class Search_Reposiotory : AsyncTask<String, String, Array<ArrayList<String>>?>() {
+        override fun doInBackground(vararg repository_url: String): Array<ArrayList<String>>? {
             var connection: HttpURLConnection? = null
-            //文字、配列、行をバッファリングすることによって、文字型入力ストリームからテキストを効率良く読み込む
+
             var reader: BufferedReader? = null
-            //Stringクラス同様に宣言した変数に、文字列を格納するために使用
+
             val buffer: StringBuffer
             try {
-                //param[0]にはAPIのURI(String)を入れます(後ほど)。
-                //AsynkTask<...>の一つめがStringな理由はURIをStringで指定するからです。
-                val url = URL(params[0])
+                val url = URL(repository_url[0])
                 connection = url.openConnection() as HttpURLConnection
                 connection.connect()
-                //ここで指定したAPIを叩いてみてます。
 
-
-                //ここから叩いたAPIから帰ってきたデータを使えるよう処理していきます。
-
-                //とりあえず取得した文字をbufferに。
                 val stream = connection.inputStream
                 reader = BufferedReader(InputStreamReader(stream))
                 buffer = StringBuffer()
@@ -241,45 +156,30 @@ class MainActivity : AppCompatActivity() {
                     }
                     buffer.append(line)
                 }
-                Log.d("CHECKREPO", buffer.toString())
 
-                var arrayrepo = Array(6, { arrayOfNulls<String>(4) })
+                val repository_Jsonarr = JSONArray(buffer.toString())
 
-                val RepoJsonarr = JSONArray(buffer.toString())
-                val reponamearr = arrayListOf<String>()
-                val repourlarr = arrayListOf<String>()
-                val stararr = arrayListOf<String>()
-                val forkarr = arrayListOf<String>()
-                val langarr = arrayListOf<String>()
                 val RepoJobj = JSONArray(buffer.toString()).getJSONObject(0)
-                val ownerj = RepoJobj.getJSONObject("owner")
-                Log.d("hhhhh", ownerj.toString())
-                val owner = ownerj.getString("login")
-                Log.d("kkkkk", owner)
+                //リポジトリのオーナーネームを取得
+                val repository_ownername = RepoJobj.getJSONObject("owner").getString("login")
 
+                //リポジトリの情報を入れるための配列を宣言
+                var repository_Info = Array(6, { arrayListOf<String>()})
+                repository_Info[0].add(repository_ownername)
 
-                for(i in 0..(RepoJsonarr.length() - 1)){
+                for(repository_count in 0..(repository_Jsonarr.length() - 1)){
 
-                    val useritems = RepoJsonarr.getJSONObject(i)
-                    val reponame = useritems.getString("name")
-                    val repourl= useritems.getString("svn_url")
-                    val star = useritems.getString("stargazers_count")
-                    val fork = useritems.getString("forks")
-                    val lang = useritems.getString("language")
-                    reponamearr.add(reponame)
-                    repourlarr.add(repourl)
-                    stararr.add(star)
-                    forkarr.add(fork)
-                    langarr.add(lang)
+                    val user_Items = repository_Jsonarr.getJSONObject(repository_count)
+
+                    repository_Info[1].add(user_Items.getString("name"))   //各リポジトリの名前を取得して配列に付け加える（以下同様）
+                    repository_Info[2].add(user_Items.getString("svn_url")) //各リポジトリのurl
+                    repository_Info[3].add(user_Items.getString("stargazers_count")) //各リポジトリのスター数
+                    repository_Info[4].add(user_Items.getString("forks"))  //各リポジトリのフォーク数
+                    repository_Info[5].add(user_Items.getString("language"))   //各リポジトリの使用言語
                 }
-                arrayrepo[0] = Array(reponamearr.size) { i -> reponamearr[i] }
-                arrayrepo[1] = Array(repourlarr.size) { i -> repourlarr[i] }
-                arrayrepo[2] = Array(stararr.size) { i -> stararr[i] }
-                arrayrepo[3] = Array(forkarr.size) { i -> forkarr[i] }
-                arrayrepo[4] = Array(langarr.size) { i -> langarr[i] }
-                arrayrepo[5][0] = owner
 
-                return arrayrepo
+
+                return repository_Info
 
             } catch (e: MalformedURLException) {
                 e.printStackTrace()
@@ -288,7 +188,7 @@ class MainActivity : AppCompatActivity() {
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
-            //finallyで接続を切断してあげましょう。
+
             finally {
                 connection?.disconnect()
                 try {
@@ -301,22 +201,23 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        override fun onPostExecute(result: Array<Array<String?>>?) {
+        override fun onPostExecute(result: Array<ArrayList<String>>?) {
             super.onPostExecute(result)
             if (result == null) {
                 return
             }
-            Log.d("CHECKrepopo", result[5][0].toString())
 
-
+            //intentを使ってrepolistviewにリポジトリの情報をアクテビティ渡す
             val intent = Intent(applicationContext, repolistview::class.java)
-            intent.putExtra("RepoName", result[0])
-            intent.putExtra("RepoUrl",result[1])
-            intent.putExtra("RepoStar",result[2])
-            intent.putExtra("RepoFork",result[3])
-            intent.putExtra("RepoLang",result[4])
-            intent.putExtra("RepoOwner",result[5][0])
+            intent.putExtra("RepoOwner", result[0][0])
+            intent.putExtra("RepoName",result[1])
+            intent.putExtra("RepoUrl",result[2])
+            intent.putExtra("RepoStar",result[3])
+            intent.putExtra("RepoFork",result[4])
+            intent.putExtra("RepoLang",result[5])
             startActivity(intent)
+
+            Log.d("kkkkkkk", result[3].toString())
 
         }
     }

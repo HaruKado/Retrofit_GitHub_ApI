@@ -15,7 +15,7 @@ class webview : AppCompatActivity() {
         val webview = findViewById(R.id.webview) as WebView
 
         val intent = getIntent()
-        val url = intent.extras.getString("webrepurl",null)
+        val url = intent.extras.getString("WebRepository_url",null)
 
         //ブラウザを起動せずにwebview内で検索や表示をすることができる
         webview.setWebViewClient(object : WebViewClient() {

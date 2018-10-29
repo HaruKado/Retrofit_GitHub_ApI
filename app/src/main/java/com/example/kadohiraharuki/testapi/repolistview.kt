@@ -5,13 +5,13 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.activity_repolistview.*
 
+/*
 class repolistview : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,11 +56,11 @@ class repolistview : AppCompatActivity() {
                     holder = view.tag as RepositoryInfo_ViewHolder
                 }
 
-                val reposp = getItem(position) as ReposData
-                holder.RepoTextView.text = reposp.repname
-                holder.starTextView.text = reposp.star
-                holder.forkTextView.text = reposp.fork
-                holder.langTextView.text = reposp.lang
+                val repository_position = getItem(position) as ReposData
+                holder.RepoTextView.text = repository_position.repositoryName
+                holder.starTextView.text = repository_position.star
+                holder.forkTextView.text = repository_position.fork
+                holder.langTextView.text = repository_position.lang
                 holder.starpicView.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.star))
                 holder.forkpicView.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.fork))
                 holder.langpicView.setImageBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.language))
@@ -81,3 +81,4 @@ class repolistview : AppCompatActivity() {
         }
     }
 }
+*/

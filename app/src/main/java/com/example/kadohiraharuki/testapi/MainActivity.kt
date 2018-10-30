@@ -7,18 +7,20 @@ import android.os.Looper
 import android.util.Log
 import android.widget.EditText
 import com.google.gson.Gson
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.internal.schedulers.IoScheduler
 import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Call
 import retrofit2.Callback
 
 
-class MainActivity: AppCompatActivity(), RepositoryContract.View{
+class MainActivity: AppCompatActivity(){
 
     val etUsername: EditText by lazy {
         findViewById<EditText>(R.id.search)
     }
 
-    var users:ArrayList<UsersData> = ArrayList()
+    //var users:ArrayList<Result> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,8 +32,10 @@ class MainActivity: AppCompatActivity(), RepositoryContract.View{
             loadUsernameInfo.ApiClientManager.apiClient.listRepos(SearchUsername).enqueue(object: Callback<Result> {
                 override fun onResponse(call: Call<Result>, response: retrofit2.Response<Result>) {
                     if (response.isSuccessful) {
-                        Log.d("mmmmmm", "call response=${response.body()}")
+                        Log.d("check_response", "call response=${response.body()}")
 
+                        val users = response!!.body()!!.items
+                       listview.adapter = UsersInfo_Adapter(this@MainActivity, users)
 
                     }
                 }
@@ -42,12 +46,6 @@ class MainActivity: AppCompatActivity(), RepositoryContract.View{
         }
     }
 
-    override fun onReposAvailable(users: Array<UsersData>){
-        val handler = Handler(Looper.getMainLooper())
-        handler.post({
-        recycleView.adapter = RepoAdapter(users)
-        })
-    }
 }
 
 

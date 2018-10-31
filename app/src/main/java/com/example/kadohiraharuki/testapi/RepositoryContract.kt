@@ -1,8 +1,5 @@
 package com.example.kadohiraharuki.testapi
 
 interface RepositoryContract {
-
-    interface View {
-        fun onReposAvailable(userInfo: ArrayList<UsersData>)
-    }
+    fun onReposAvailable(repos: String)
 }

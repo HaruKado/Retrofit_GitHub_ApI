@@ -18,15 +18,7 @@ class UsersInfo_Adapter(context: Context, users: ArrayList<UsersData>?) : ArrayA
             view = layoutInflater.inflate(R.layout.list_item, parent, false)
             holder = Users_ViewHolder(
                     view.findViewById(R.id.nameTextView),
-                    view.findViewById(R.id.userImgView),
-                    view.findViewById(R.id.locTextView),
-                    view.findViewById(R.id.repositoryTextView),
-                    view.findViewById(R.id.followTextView),
-                    view.findViewById(R.id.followerTextView),
-                    view.findViewById(R.id.placepicView),
-                    view.findViewById(R.id.repopicView),
-                    view.findViewById(R.id.followpicView),
-                    view.findViewById(R.id.followerpicView)
+                    view.findViewById(R.id.userImgView)
             )
             view.tag = holder
         } else {
@@ -40,6 +32,8 @@ class UsersInfo_Adapter(context: Context, users: ArrayList<UsersData>?) : ArrayA
 
     }
 }
+
+
 
 
 

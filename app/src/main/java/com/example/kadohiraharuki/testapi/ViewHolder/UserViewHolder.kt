@@ -4,9 +4,7 @@ import android.widget.ImageView
 import android.widget.TextView
 
 
-data class Users_ViewHolder(
-
+data class UserViewHolder(
     val nameTextView: TextView,
-    val UserImgView: ImageView
-
+    val userImgView: ImageView
 )

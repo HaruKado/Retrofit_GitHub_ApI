@@ -1,5 +1,4 @@
-package com.example.kadohiraharuki.testapi
-
+package com.example.kadohiraharuki.testapi.Data_File
 
 
 data class UsersData(val login: String, val avatar_url: String, val repos_url: String)

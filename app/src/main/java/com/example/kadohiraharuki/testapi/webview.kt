@@ -6,7 +6,9 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 
-class webview : AppCompatActivity() {
+//TI Activityは〜Activity名で統一する（kotlin的な推奨になっていると思われる）
+//WebActivity
+class WebActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

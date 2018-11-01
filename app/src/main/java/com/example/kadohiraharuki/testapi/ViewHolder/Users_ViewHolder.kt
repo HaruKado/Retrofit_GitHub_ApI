@@ -1,4 +1,4 @@
-package com.example.kadohiraharuki.testapi
+package com.example.kadohiraharuki.testapi.ViewHolder
 
 import android.widget.ImageView
 import android.widget.TextView

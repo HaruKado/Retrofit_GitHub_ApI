@@ -4,9 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.View
 import com.example.kadohiraharuki.testapi.Adapter.RepositoryAdapter
 import com.example.kadohiraharuki.testapi.Data_File.Repository
 import com.example.kadohiraharuki.testapi.Retrofit_Difine.RetrofitSearch
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_repolistview.*
 import kotlinx.android.synthetic.main.activity_webview.*
 import kotlinx.android.synthetic.main.repos_item.*
@@ -22,6 +24,7 @@ class RepositoryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_repolistview)
+        progressBar2.visibility = View.VISIBLE
 
         val intent = getIntent()
         val userName = intent.extras.getString("userName")
@@ -33,8 +36,10 @@ class RepositoryActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     Log.d("check_repository", "call response=${response.body()}")
 
+
                     val repository = response.body()!!
                     repoList.adapter = RepositoryAdapter(this@RepositoryActivity, repository)
+                    progressBar2.visibility = View.GONE
 
                     repoList.setOnItemClickListener { parent, view, position, id ->
                         val repository = response.body()!![position]

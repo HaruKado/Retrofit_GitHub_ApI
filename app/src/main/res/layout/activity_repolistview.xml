@@ -27,4 +27,18 @@
         app:layout_constraintHorizontal_bias="0.145"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBar2"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/repoList"
+        app:layout_constraintEnd_toEndOf="@+id/repoList"
+        app:layout_constraintStart_toStartOf="@+id/repoList"
+        app:layout_constraintTop_toBottomOf="@+id/ownername" />
 </android.support.constraint.ConstraintLayout>

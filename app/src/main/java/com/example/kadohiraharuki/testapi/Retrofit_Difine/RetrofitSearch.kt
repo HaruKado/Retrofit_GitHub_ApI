@@ -22,6 +22,4 @@ class RetrofitSearch: AppCompatActivity(){
 
         }
     }
-
-
 }

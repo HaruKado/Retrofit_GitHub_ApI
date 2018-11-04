@@ -3,6 +3,7 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.EditText
 import com.example.kadohiraharuki.testapi.Adapter.UserAdapter
 import com.example.kadohiraharuki.testapi.Data_File.UserItem
@@ -22,8 +23,10 @@ class UserSearchActivity: AppCompatActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        progressBar.visibility = View.GONE
 
         search.setOnClickListener {
+            progressBar.visibility = View.VISIBLE
             val SearchUsername = etUsername.text.toString().trim()
 
             RetrofitSearch.ApiClientManager.apiClient.listUser(SearchUsername).enqueue(object : Callback<UserItem> {
@@ -33,6 +36,7 @@ class UserSearchActivity: AppCompatActivity(){
 
                         val users = response.body()!!.items
                         listview.adapter = UserAdapter(this@UserSearchActivity, users)
+                        progressBar.visibility = View.GONE
 
                         listview.setOnItemClickListener { parent, view, position, id ->
                             //TI users_positionはUsersData型であるのに対しpositionと明記されていると誤解を招く
@@ -46,6 +50,7 @@ class UserSearchActivity: AppCompatActivity(){
                             intent.putExtra("userName", userName)
                             startActivity(intent)
 
+
                         }
 
                     }
@@ -55,7 +60,6 @@ class UserSearchActivity: AppCompatActivity(){
                 }
             })
         }
-
     }
 }
 
